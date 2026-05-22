@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Adventure Bingo">
+<meta name="theme-color" content="#0F0F1A">
+<title>Adventure Bingo</title>
+<style>
+/* ── SYSTEM FONT STACK: works fully offline ─────────────────────────── */
+:root {
+  --font-display: -apple-system-headline, 'SF Pro Rounded', 'Nunito', 'Varela Round', ui-rounded, system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+
+  /* Palette */
+  --bg:       #0F0F1A;
+  --surface:  #1A1A2E;
+  --surface2: #252540;
+  --border:   rgba(255,255,255,0.10);
+  --border2:  rgba(255,255,255,0.06);
+
+  --sun:    #FFCF44;
+  --coral:  #FF5F6D;
+  --teal:   #00D4AA;
+  --purple: #9B59F5;
+  --green:  #1FD176;
+  --orange: #FF8C42;
+  --pink:   #F0478C;
+  --sky:    #38C8F0;
+
+  --text:      #F0F0FF;
+  --text-muted: rgba(240,240,255,0.45);
+
+  /* Safe areas for notches */
+  --sat: env(safe-area-inset-top,    0px);
+  --sar: env(safe-area-inset-right,  0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left,   0px);
+
+  /* Touch */
+  --tap: 48px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* ── SCROLLABLE SHELL ───────────────────────────────────────────────── */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-top: calc(var(--sat) + 8px);
+  padding-bottom: calc(var(--sab) + 24px);
+  padding-left: max(var(--sal), 16px);
+  padding-right: max(var(--sar), 16px);
+}
+
+/* ── TABS ───────────────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 4px;
+  margin-bottom: 20px;
+  gap: 2px;
+  border: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--coral), var(--purple));
+  color: white;
+  box-shadow: 0 4px 16px rgba(255,95,109,0.35);
+}
+
+/* ── SCREENS ────────────────────────────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+.app-header {
+  text-align: center;
+  padding: 10px 0 20px;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 10vw, 3.4rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--sun) 0%, var(--coral) 45%, var(--pink) 80%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── CARDS / SECTIONS ───────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────────────────── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.field-row.single { grid-template-columns: 1fr; }
+
+label.field-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+select, input[type="text"] {
+  width: 100%;
+  height: var(--tap);
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus, input[type="text"]:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(0,212,170,0.18);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='rgba(240,240,255,0.4)' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* ── BUTTONS ────────────────────────────────────────────────────────── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: var(--tap);
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  letter-spacing: 0.3px;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--coral), var(--purple));
+  color: white;
+  box-shadow: 0 6px 24px rgba(255,95,109,0.35);
+  margin-top: 4px;
+}
+
+.btn-teal {
+  background: linear-gradient(135deg, var(--teal), var(--sky));
+  color: var(--bg);
+  box-shadow: 0 6px 20px rgba(0,212,170,0.3);
+}
+
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+}
+
+.btn-danger {
+  background: rgba(255,95,109,0.12);
+  color: var(--coral);
+  border: 1.5px solid rgba(255,95,109,0.25);
+}
+
+.btn-sm {
+  height: 38px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+  padding: 0 14px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-row .btn { flex: 1; }
+
+/* ── UPLOAD ZONE ────────────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.upload-zone.drag-over, .upload-zone:active {
+  border-color: var(--teal);
+  background: rgba(0,212,170,0.06);
+}
+
+.upload-icon { font-size: 2.6rem; display: block; margin-bottom: 8px; }
+.upload-title { font-weight: 800; font-size: 1rem; margin-bottom: 4px; }
+.upload-hint  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.upload-hint strong { color: var(--teal); }
+
+#csvInput { display: none; }
+
+.csv-tip {
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: monospace;
+  line-height: 1.8;
+  margin-top: 12px;
+  text-align: left;
+  border: 1px solid var(--border2);
+}
+
+/* ── STATUS PILL ────────────────────────────────────────────────────── */
+.status-pill {
+  display: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+  animation: fadeSlideIn 0.3s ease;
+}
+.status-ok  { background: rgba(31,209,118,0.12); color: var(--green); border: 1px solid rgba(31,209,118,0.3); }
+.status-warn { background: rgba(255,207,68,0.12); color: var(--sun); border: 1px solid rgba(255,207,68,0.3); }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SAVED LISTS ────────────────────────────────────────────────────── */
+.saved-list { display: flex; flex-direction: column; gap: 8px; }
+
+.saved-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.saved-item.selected {
+  border-color: var(--teal);
+  background: rgba(0,212,170,0.08);
+}
+
+.saved-meta { flex: 1; min-width: 0; }
+.saved-name { font-weight: 800; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.saved-count { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+.saved-actions { display: flex; gap: 6px; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border: none; border-radius: 9px;
+  background: rgba(255,255,255,0.07);
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.icon-btn:active { transform: scale(0.9); }
+.icon-btn.danger { color: var(--coral); background: rgba(255,95,109,0.1); }
+
+.empty-saved {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ── SAVE NAME INPUT ────────────────────────────────────────────────── */
+.save-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.save-row input { flex: 1; }
+
+/* ── LEGEND ─────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+}
+.ld-normal  { background: rgba(255,255,255,0.18); }
+.ld-bonus   { background: var(--green); }
+.ld-penalty { background: var(--coral); }
+.ld-free    { background: linear-gradient(135deg, var(--sun), var(--coral)); }
+
+/* ── SCORE BAR ──────────────────────────────────────────────────────── */
+.score-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.score-chip {
+  flex: 1;
+  min-width: 80px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.score-num  { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; line-height: 1; }
+.score-lbl  { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+.score-chip.c-marked  .score-num { color: var(--sky); }
+.score-chip.c-bonuses .score-num { color: var(--green); }
+.score-chip.c-penal   .score-num { color: var(--coral); }
+
+/* ── WIN BANNER ─────────────────────────────────────────────────────── */
+.win-banner {
+  display: none;
+  background: linear-gradient(135deg, rgba(255,207,68,0.15), rgba(255,95,109,0.15));
+  border: 2px solid var(--sun);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 14px;
+  animation: winPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes winPulse {
+  0%   { box-shadow: 0 0 16px rgba(255,207,68,0.3); }
+  100% { box-shadow: 0 0 40px rgba(255,95,109,0.5); }
+}
+.win-banner h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--sun), var(--coral));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── BINGO CARD ─────────────────────────────────────────────────────── */
+.bingo-card-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.card-head-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--sun), var(--coral));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-head-sub { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-align: right; }
+
+.bingo-letters {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  margin-bottom: 3px;
+}
+.b-letter {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  padding: 4px 0;
+}
+.b-letter:nth-child(1) { color: var(--coral); }
+.b-letter:nth-child(2) { color: var(--sun); }
+.b-letter:nth-child(3) { color: var(--teal); }
+.b-letter:nth-child(4) { color: var(--purple); }
+.b-letter:nth-child(5) { color: var(--green); }
+
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+/* Cell sizing: fills available width, stays square */
+.bingo-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3px 2px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s, background 0.15s;
+  font-size: clamp(0.42rem, 1.7vw, 0.58rem);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.bingo-cell:active { transform: scale(0.92); }
+
+.cell-emoji { font-size: clamp(0.75rem, 3vw, 1rem); margin-bottom: 1px; line-height: 1; display: block; }
+
+.bingo-cell.type-normal  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+.bingo-cell.type-bonus   { background: rgba(31,209,118,0.14); border-color: rgba(31,209,118,0.35); color: #86efac; }
+.bingo-cell.type-penalty { background: rgba(255,95,109,0.14); border-color: rgba(255,95,109,0.35); color: #fca5a5; }
+.bingo-cell.type-free    { background: linear-gradient(135deg, var(--sun), var(--coral)); border-color: transparent; color: var(--bg); font-weight: 900; }
+
+.cell-badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  font-size: 0.42rem;
+  border-radius: 4px;
+  padding: 1px 3px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.badge-bonus   { background: rgba(31,209,118,0.25); color: #86efac; }
+.badge-penalty { background: rgba(255,95,109,0.25); color: #fca5a5; }
+
+/* Marked overlay */
+.bingo-cell.marked { transform: scale(0.94); }
+.bingo-cell.marked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1rem, 5vw, 1.6rem);
+  font-weight: 900;
+  border-radius: 7px;
+  animation: stampIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bingo-cell.type-normal.marked::after  { background: rgba(56,200,240,0.88); color: white; }
+.bingo-cell.type-bonus.marked::after   { background: rgba(31,209,118,0.92); color: white; }
+.bingo-cell.type-penalty.marked::after { background: rgba(255,95,109,0.92); color: white; }
+.bingo-cell.type-free.marked::after    { background: rgba(0,0,0,0.35); color: white; }
+
+@keyframes stampIn {
+  0%   { transform: scale(2.2) rotate(-12deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── POPUP OVERLAY ──────────────────────────────────────────────────── */
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 calc(var(--sab) + 16px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.popup-overlay.active { display: flex; }
+
+.popup-sheet {
+  background: var(--surface);
+  border-radius: 28px 28px 20px 20px;
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  border: 1px solid var(--border);
+  animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.popup-drag-handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: -16px auto 20px;
+}
+
+.popup-emoji    { font-size: 3.5rem; line-height: 1; margin-bottom: 10px; }
+.popup-type     { font-size: 0.65rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 6px; }
+.popup-type.bonus-type   { color: var(--green); }
+.popup-type.penalty-type { color: var(--coral); }
+
+.popup-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--text); margin-bottom: 10px; }
+
+.popup-rule {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 12px 0 20px;
+  line-height: 1.55;
+  text-align: left;
+}
+.bonus-rule   { background: rgba(31,209,118,0.12); color: #86efac; border: 1px solid rgba(31,209,118,0.25); }
+.penalty-rule { background: rgba(255,95,109,0.12); color: #fca5a5; border: 1px solid rgba(255,95,109,0.25); }
+
+/* ── TOAST ──────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: calc(var(--sat) + 16px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 10000;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+@keyframes toastIn  { from { opacity:0; transform:translateX(-50%) translateY(-8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+/* ── MANUAL ITEMS EDITOR ────────────────────────────────────────────── */
+.items-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 10px;
+}
+
+.item-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.item-row input { flex: 1; }
+.item-emoji-input { width: 52px !important; text-align: center; padding: 0 6px; flex-shrink: 0; }
+
+/* ── SECRET MISSION ─────────────────────────────────────────────────── */
+.secret-mission {
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: rgba(155,89,245,0.07);
+  border: 1px solid rgba(155,89,245,0.22);
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.secret-mission summary {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--purple);
+  list-style: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.secret-mission summary::-webkit-details-marker { display: none; }
+
+.secret-text {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(155,89,245,0.2);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ── PRINT ──────────────────────────────────────────────────────────── */
+@media print {
+  .tab-bar, .screen:not(#screen-play), .status-pill, .win-banner,
+  .score-bar, .legend, .btn-row, .upload-zone { display: none !important; }
+  body { background: white; color: #000; }
+  .bingo-card-wrap { border: 2px solid #ccc; break-inside: avoid; page-break-after: always; }
+  .bingo-cell.type-normal  { background:#f5f5f5; color:#333; border-color:#ddd; }
+  .bingo-cell.type-bonus   { background:#dcfce7; color:#166534; border-color:#86efac; }
+  .bingo-cell.type-penalty { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+  .bingo-cell.type-free    { background:linear-gradient(135deg,#FFD93D,#FF6B6B); color:#000; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── POPUP ── -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-sheet" id="popupSheet">
+    <div class="popup-drag-handle"></div>
+    <div class="popup-emoji" id="pEmoji"></div>
+    <div class="popup-type" id="pType"></div>
+    <div class="popup-title" id="pTitle"></div>
+    <div class="popup-rule" id="pRule"></div>
+    <button class="btn btn-primary" onclick="closePopup()">Got it! 🎯</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ── HEADER ── -->
+  <div class="app-header">
+    <div class="app-title">🎲 Adventure<br>Bingo</div>
+    <div class="app-subtitle">Tap squares · Earn bonuses · Win</div>
+  </div>
+
+  <!-- ── TAB BAR ── -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('setup')"   id="tab-setup">⚙️ Setup</button>
+    <button class="tab-btn"        onclick="switchTab('library')" id="tab-library">📚 Lists</button>
+    <button class="tab-btn"        onclick="switchTab('play')"    id="tab-play">🎴 Play</button>
+  </div>
+
+  <!-- ══ SETUP SCREEN ══ -->
+  <div class="screen active" id="screen-setup">
+
+    <!-- CSV Upload -->
+    <div class="card">
+      <div class="card-title">📂 Load Items</div>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvInput').click()">
+        <input type="file" id="csvInput" accept=".csv,.txt" onchange="loadCSV(event)">
+        <span class="upload-icon">📋</span>
+        <div class="upload-title">Tap to upload CSV / TXT</div>
+        <div class="upload-hint">One item per line · Or add an <strong>emoji</strong> column</div>
+        <div class="csv-tip">
+          Simple: item,emoji<br>
+          Tried street food,🌮<br><br>
+          Full schema: title,emoji,category<br>
+          categories: observation · social · couple · rare
+        </div>
+      </div>
+
+      <div class="status-pill" id="statusPill"></div>
+
+      <!-- Save to library -->
+      <div id="saveSection" style="display:none">
+        <div class="save-row">
+          <input type="text" id="saveNameInput" placeholder="Name this list…" maxlength="40">
+          <button class="btn btn-teal btn-sm" onclick="saveToLibrary()">💾 Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual add -->
+    <div class="card">
+      <div class="card-title">✏️ Add Manually</div>
+      <div class="items-editor" id="manualEditor"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="addManualRow()">＋ Add Row</button>
+        <button class="btn btn-teal btn-sm" onclick="applyManual()">✓ Use These</button>
+      </div>
+    </div>
+
+    <!-- Generate controls -->
+    <div class="card">
+      <div class="card-title">🎲 Card Settings</div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Cards</label>
+          <select id="numCards">
+            <option value="1">1 Card</option>
+            <option value="2" selected>2 Cards</option>
+            <option value="3">3 Cards</option>
+            <option value="4">4 Cards</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Theme</label>
+          <select id="themeSelect">
+            <option value="vacation">🏖️ Vacation</option>
+            <option value="nightout">🍸 Night Out</option>
+            <option value="roadtrip">🚗 Road Trip</option>
+            <option value="foodie">🍽️ Foodie</option>
+            <option value="adventure">🏔️ Adventure</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row single">
+        <div>
+          <label class="field-label">Card Title</label>
+          <input type="text" id="cardTitle" value="Adventure Bingo" maxlength="30">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="generateCards()">🎲 Generate Bingo Cards!</button>
+    </div>
+
+  </div><!-- /setup -->
+
+  <!-- ══ LIBRARY SCREEN ══ -->
+  <div class="screen" id="screen-library">
+    <div class="card">
+      <div class="card-title">📚 Saved Lists <span id="libCount" style="color:var(--text-muted);font-size:0.8rem;font-weight:600"></span></div>
+      <div class="saved-list" id="savedList"></div>
+    </div>
+    <div id="libraryEmpty" class="card" style="display:none">
+      <div class="empty-saved">
+        🗂️<br><br>
+        No saved lists yet.<br>Upload a CSV or add items manually,<br>then save them from the Setup tab.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PLAY SCREEN ══ -->
+  <div class="screen" id="screen-play">
+
+    <div id="playEmpty" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+      <div style="font-size:3rem;margin-bottom:12px">🗺️</div>
+      <div style="font-weight:700">Generate cards in Setup first!</div>
+    </div>
+
+    <div id="playContent" style="display:none">
+      <!-- Win banner -->
+      <div class="win-banner" id="winBanner">
+        <h2>🎉 BINGO!!</h2>
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:4px">You're the adventure champion! 🏆</div>
+      </div>
+
+      <!-- Score -->
+      <div class="score-bar">
+        <div class="score-chip c-marked">
+          <div class="score-num" id="scoreMarked">0</div>
+          <div class="score-lbl">Marked</div>
+        </div>
+        <div class="score-chip c-bonuses">
+          <div class="score-num" id="scoreBonuses">0</div>
+          <div class="score-lbl">Bonuses</div>
+        </div>
+        <div class="score-chip c-penal">
+          <div class="score-num" id="scorePenalties">0</div>
+          <div class="score-lbl">Penalties</div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot ld-normal"></div>Regular</div>
+        <div class="legend-item"><div class="legend-dot ld-bonus"></div>⚡ Bonus</div>
+        <div class="legend-item"><div class="legend-dot ld-penalty"></div>💀 Penalty</div>
+        <div class="legend-item"><div class="legend-dot ld-free"></div>⭐ Free</div>
+      </div>
+
+      <!-- Cards rendered here -->
+      <div id="cardsContainer"></div>
+
+      <!-- Actions -->
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-danger" onclick="resetGame()">↩️ New Game</button>
+      </div>
+    </div>
+
+  </div><!-- /play -->
+
+</div><!-- /shell -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   STORAGE HELPERS  (uses window.storage API when available, falls back
+   to an in-memory map so the app still works without it)
+═══════════════════════════════════════════════════════════════════════ */
+const MEM = {};
+const Store = {
+  async get(key) {
+    try {
+      const r = await window.storage.get(key);
+      return r ? JSON.parse(r.value) : null;
+    } catch { return MEM[key] ?? null; }
+  },
+  async set(key, val) {
+    try {
+      await window.storage.set(key, JSON.stringify(val));
+    } catch { /* ignore */ }
+    MEM[key] = val;
+  },
+  async del(key) {
+    try { await window.storage.delete(key); } catch {}
+    delete MEM[key];
+  },
+  async list(prefix) {
+    try {
+      const r = await window.storage.list(prefix);
+      return r ? r.keys : [];
+    } catch { return Object.keys(MEM).filter(k => k.startsWith(prefix)); }
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   GAME DATA
+═══════════════════════════════════════════════════════════════════════ */
+const BONUS_CARDS = [
+  { emoji:'⚡', title:'Speed Round!',        rule:'Mark any 1 unchecked square of your choice — right now, for free!' },
+  { emoji:'🎁', title:'Free Pass!',           rule:'Skip one penalty square if you land on it later in this game.' },
+  { emoji:'👑', title:'Royal Treatment!',     rule:'Every other player must buy you your next drink or snack.' },
+  { emoji:'🔄', title:'Double Dip!',          rule:'Mark this AND the unchecked square closest to it on the grid.' },
+  { emoji:'🛡️', title:'Shield Up!',           rule:'The very next penalty square you hit is completely cancelled.' },
+  { emoji:'🃏', title:'Wild Card!',           rule:'Name any square on your card and mark it without doing the challenge.' },
+  { emoji:'🧲', title:'Magnet!',              rule:'Look at your 3 nearest unchecked squares — pick 1 to mark for free.' },
+  { emoji:'🎯', title:'Bullseye!',            rule:'Mark this square AND swap one unchecked square with another player\'s.' },
+  { emoji:'🚀', title:'Rocket Launch!',       rule:'Also mark the square directly above or below this one.' },
+  { emoji:'🌟', title:'Star Power!',          rule:'For the next 10 minutes, completing one challenge marks two squares.' },
+  { emoji:'🎲', title:'Lucky Roll!',          rule:'Roll a die (or pick 1–6) — that many squares ahead get marked free.' },
+  { emoji:'🤝', title:'Team Up!',             rule:'Pick a partner — you both mark your next square at the same time.' },
+];
+
+const PENALTY_CARDS = [
+  { emoji:'💀', title:'Sabotage!',            rule:'Unmark one of your already-checked squares (your choice which).' },
+  { emoji:'😈', title:'Evil Swap!',           rule:'The group votes — a player of their choosing unmarked one of your squares.' },
+  { emoji:'🐌', title:'Slow Down!',           rule:'Everyone else marks their next square before you can mark yours.' },
+  { emoji:'🎭', title:'Dare or Dare!',        rule:'Complete a group-chosen dare before marking your next regular square.' },
+  { emoji:'🔒', title:'Locked Out!',          rule:'You cannot mark any square in this row for the next 5 minutes.' },
+  { emoji:'🎪', title:'Spotlight!',           rule:'Announce every square you mark out loud for the rest of the game.' },
+  { emoji:'🧊', title:'Freeze!',              rule:'Skip your next turn — let everyone else go once before you continue.' },
+  { emoji:'🎰', title:'Double or Nothing!',   rule:'Flip a coin: Heads = mark 2 free squares; Tails = unmark 2 squares.' },
+  { emoji:'😅', title:'Silly Photo!',         rule:'Take a funny group photo before you can mark your next square.' },
+  { emoji:'🌀', title:'Shuffle!',             rule:'Everyone passes their card clockwise — play the new card for 5 minutes.' },
+  { emoji:'🍹', title:'Buy a Round!',         rule:'You must buy the group a round of drinks before your next turn.' },
+  { emoji:'📢', title:'Confession!',          rule:'Share an embarrassing vacation story — then the group votes if it counts.' },
+];
+
+const DEFAULT_ITEMS = [
+  // Observation — passive, things you notice (target: 40%)
+  {text:'Spotted wildlife',                          emoji:'🦜', category:'observation'},
+  {text:'Found a rooftop view',                      emoji:'🌆', category:'observation'},
+  {text:'Caught a perfect sunset',                   emoji:'🌅', category:'observation'},
+  {text:'Watched the sunrise',                       emoji:'🌄', category:'observation'},
+  {text:'Got pleasantly lost',                       emoji:'🗺️', category:'observation'},
+  {text:'Found a secret spot',                       emoji:'🤫', category:'observation'},
+  {text:'Spotted a landmark',                        emoji:'🏛️', category:'observation'},
+  {text:'Stumbled into a museum or gallery',         emoji:'🖼️', category:'observation'},
+  {text:'Rode an unfamiliar type of transport',      emoji:'🛵', category:'observation'},
+  {text:'Swam somewhere outdoors',                   emoji:'🏊', category:'observation'},
+  {text:'Hiked or walked a trail',                   emoji:'🥾', category:'observation'},
+  {text:'Spotted matching outfits on strangers',     emoji:'👫', category:'observation'},
+  {text:'Found unexpected street art',               emoji:'🎨', category:'observation'},
+  {text:'Saw a neon sign worth photographing',       emoji:'🪩', category:'observation'},
+  {text:'Dog wearing an outfit',                     emoji:'🐕', category:'observation'},
+  {text:'Someone sprinting to catch transport',      emoji:'🏃', category:'observation'},
+  {text:'Street musician playing',                   emoji:'🎸', category:'observation'},
+  {text:'Someone photographing their food',          emoji:'📸', category:'observation'},
+  {text:'An absurdly long queue',                    emoji:'🧍', category:'observation'},
+  {text:'Someone fast asleep in public',             emoji:'😴', category:'observation'},
+  {text:'Tour group with matching accessories',      emoji:'🎩', category:'observation'},
+  {text:'Overheard a conversation you couldn\'t ignore', emoji:'👂', category:'observation'},
+  {text:'Spotted a fountain',                        emoji:'⛲', category:'observation'},
+  {text:'A food truck parked somewhere unexpected',  emoji:'🚚', category:'observation'},
+  {text:'Vintage or unusual vehicle',                emoji:'🚗', category:'observation'},
+  {text:'Someone in a full costume (not Halloween)', emoji:'🎭', category:'observation'},
+  {text:'A rainbow',                                 emoji:'🌈', category:'observation'},
+  {text:'Spotted a cat in a window',                 emoji:'🐱', category:'observation'},
+  {text:'Someone walking three or more dogs',        emoji:'🐕', category:'observation'},
+  {text:'A child doing something chaotic',           emoji:'😅', category:'observation'},
+  // Social/Interactive — active, story-creating (target: 25%)
+  {text:'Tried street food',                         emoji:'🌮', category:'social'},
+  {text:'Met a genuinely friendly local',            emoji:'👋', category:'social'},
+  {text:'Tried a local signature drink',             emoji:'🍹', category:'social'},
+  {text:'Bought a souvenir',                         emoji:'🛍️', category:'social'},
+  {text:'Sang karaoke',                              emoji:'🎤', category:'social'},
+  {text:'Danced in public',                          emoji:'💃', category:'social'},
+  {text:'Tried something exotic off a menu',         emoji:'🍜', category:'social'},
+  {text:'Made a new friend',                         emoji:'🤝', category:'social'},
+  {text:'Tried the local beer',                      emoji:'🍺', category:'social'},
+  {text:'Bargained at a market',                     emoji:'🏪', category:'social'},
+  {text:'Tried a water activity',                    emoji:'🚣', category:'social'},
+  {text:'Shared a meal with strangers',              emoji:'🍽️', category:'social'},
+  {text:'Watched street performers',                 emoji:'🎪', category:'social'},
+  {text:'Found the best coffee of the trip',         emoji:'☕', category:'social'},
+  {text:'Phones away for 15 minutes straight',       emoji:'📵', category:'social'},
+  {text:'Said yes to a spontaneous detour',          emoji:'🎲', category:'social'},
+  {text:'Asked a local for their recommendation',    emoji:'🍸', category:'social'},
+  {text:'Ordered something without reading the menu', emoji:'🙈', category:'social'},
+  {text:'Complimented a stranger',                   emoji:'🫶', category:'social'},
+  {text:'Asked for an off-menu item',                emoji:'📋', category:'social'},
+  // Couple Dynamics — relationship-specific moments
+  {text:"Predicted partner's order correctly",       emoji:'🔮', category:'couple'},
+  {text:'Both said the same word at the same time',  emoji:'💬', category:'couple'},
+  {text:'Caught partner sneaking a photo of you',    emoji:'😆', category:'couple'},
+  {text:'Settled a disagreement with a coin flip',   emoji:'🪙', category:'couple'},
+  {text:'Dramatic movie-style selfie together',      emoji:'🎬', category:'couple'},
+  {text:'Surprise compliment to partner in public',  emoji:'💌', category:'couple'},
+  {text:'Gave partner a temporary silly nickname',   emoji:'😏', category:'couple'},
+  {text:'Both instantly agreed on something',        emoji:'🤞', category:'couple'},
+  {text:'One of you got recognized or complimented by a stranger', emoji:'🌟', category:'couple'},
+  {text:'Recreated a photo from an earlier trip',    emoji:'🗓️', category:'couple'},
+  {text:'Partner caught you people-watching',        emoji:'👀', category:'couple'},
+  {text:'One of you ordered exactly what the other was going to order', emoji:'😮', category:'couple'},
+  // Rare/Event — uncommon, high-value spikes (target: 15%)
+  {text:'Witnessed a marriage proposal',             emoji:'💍', category:'rare'},
+  {text:'Spotted a celebrity',                       emoji:'🌟', category:'rare'},
+  {text:'Received a free item from staff',           emoji:'🎁', category:'rare'},
+  {text:'Street performer stopped a whole crowd',    emoji:'🎭', category:'rare'},
+  {text:'Someone dropped their drink nearby',        emoji:'🥤', category:'rare'},
+  {text:'Stumbled into a private or surprise event', emoji:'✨', category:'rare'},
+  {text:'Overheard something truly unhinged',        emoji:'😳', category:'rare'},
+  {text:'Found money on the ground',                 emoji:'💸', category:'rare'},
+  {text:'A complete stranger gave an unprompted compliment', emoji:'🫶', category:'rare'},
+];
+
+const HIDDEN_OBJECTIVES = [
+  'Make your partner say "seriously?" at least once',
+  'Spot 3 hats before your partner spots 2',
+  'Convince your partner to order dessert',
+  'Get your partner to check their phone',
+  'Make your partner laugh while they\'re drinking',
+  'Use the word "actually" in a conversation without getting called out',
+  'Secretly photograph something funny to show at the end',
+  'Get a stranger to talk to you first',
+  'Order something without looking at the menu',
+  'Predict the next song that plays — whisper your guess to yourself first',
+  'Compliment three strangers without your partner noticing',
+  'Get your partner to say your name out loud at least twice',
+  'Find something that matches your partner\'s outfit color',
+  'Make your partner think you\'re losing when you\'re actually not',
+  'Get your partner to agree with something you know they hate',
+];
+
+/* ═══════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════ */
+let currentItems  = [];       // active item pool
+let cardStates    = [];       // [{marked:bool[25], bonuses:n, penalties:n}]
+let globalStats   = {marked:0, bonuses:0, penalties:0};
+let libraries     = {};       // id -> {name, items, createdAt}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════════ */
+(async function init() {
+  addManualRow(); addManualRow(); addManualRow();
+  await loadLibraries();
+  renderLibraryScreen();
+
+  /* drag-drop */
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover',  e => { e.preventDefault(); uz.classList.add('drag-over'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('drag-over'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) processFile(f);
+  });
+
+  /* close popup on overlay tap */
+  document.getElementById('popupOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closePopup();
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TAB ROUTING
+═══════════════════════════════════════════════════════════════════════ */
+function switchTab(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CSV LOADING
+═══════════════════════════════════════════════════════════════════════ */
+function loadCSV(e) {
+  const f = e.target.files[0];
+  if (f) processFile(f);
+  e.target.value = '';
+}
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const lines = ev.target.result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const parsed = [];
+    let colMap = null;
+
+    for (let i = 0; i < lines.length; i++) {
+      const parts = lines[i].split(',').map(p => p.replace(/^["'\s]+|["'\s]+$/g, ''));
+
+      // Detect header row by checking if any column name is a known field
+      if (i === 0 && parts.some(p => /^(item|text|name|title|label|activity|square|id|category|weight|emoji)$/i.test(p))) {
+        colMap = {};
+        parts.forEach((col, idx) => {
+          const c = col.toLowerCase();
+          if (/^(item|text|name|title|label|activity|square)$/.test(c)) colMap.text  = idx;
+          else if (c === 'emoji')    colMap.emoji    = idx;
+          else if (c === 'category') colMap.category = idx;
+          // weight, id, difficulty, tags, effect are parsed but not yet used in rendering
+        });
+        continue;
+      }
+
+      if (!parts[0]) continue;
+
+      let item;
+      if (colMap) {
+        const text = colMap.text != null ? parts[colMap.text] : parts[0];
+        if (!text) continue;
+        const emojiVal = colMap.emoji != null ? parts[colMap.emoji] : parts[1];
+        const emoji    = emojiVal && /\p{Emoji}/u.test(emojiVal) ? emojiVal : rndEmoji();
+        const category = colMap.category != null ? (parts[colMap.category] || '').toLowerCase() || undefined : undefined;
+        item = { text, emoji, category };
+      } else {
+        const emoji = parts[1] && /\p{Emoji}/u.test(parts[1]) ? parts[1] : rndEmoji();
+        item = { text: parts[0], emoji };
+      }
+
+      parsed.push(item);
+    }
+
+    setItems(parsed, `Loaded ${parsed.length} items from "${file.name}"`);
+  };
+  reader.readAsText(file);
+}
+
+function setItems(items, msg) {
+  currentItems = items;
+  const ok = items.length >= 24;
+  showStatus(ok ? '✅ ' + msg : `⚠️ ${msg} — need at least 24 (have ${items.length})`, ok);
+  document.getElementById('saveSection').style.display = items.length ? 'block' : 'none';
+  document.getElementById('saveNameInput').value = '';
+}
+
+function showStatus(msg, ok) {
+  const el = document.getElementById('statusPill');
+  el.textContent = msg;
+  el.className = 'status-pill ' + (ok ? 'status-ok' : 'status-warn');
+  el.style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MANUAL EDITOR
+═══════════════════════════════════════════════════════════════════════ */
+function addManualRow(text='', emoji='') {
+  const ed = document.getElementById('manualEditor');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `
+    <input type="text" class="manual-text" placeholder="Activity…" value="${text}" maxlength="40">
+    <input type="text" class="item-emoji-input manual-emoji" placeholder="🎯" value="${emoji}" maxlength="4">
+    <button class="icon-btn danger" onclick="this.parentElement.remove()">🗑</button>
+  `;
+  ed.appendChild(row);
+  ed.scrollTop = ed.scrollHeight;
+}
+
+function applyManual() {
+  const rows = document.querySelectorAll('#manualEditor .item-row');
+  const items = [];
+  rows.forEach(r => {
+    const t = r.querySelector('.manual-text').value.trim();
+    const e = r.querySelector('.manual-emoji').value.trim() || rndEmoji();
+    if (t) items.push({text: t, emoji: e});
+  });
+  if (!items.length) { showToast('Add at least 1 item first!'); return; }
+  setItems(items, `${items.length} manual items ready`);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LIBRARY (persistent)
+═══════════════════════════════════════════════════════════════════════ */
+async function loadLibraries() {
+  const keys = await Store.list('bingo-list:');
+  libraries = {};
+  for (const key of keys) {
+    const v = await Store.get(key);
+    if (v) libraries[key] = v;
+  }
+}
+
+async function saveToLibrary() {
+  const name = document.getElementById('saveNameInput').value.trim();
+  if (!name) { showToast('Give this list a name first!'); return; }
+  if (!currentItems.length) { showToast('No items loaded yet!'); return; }
+  const id = 'bingo-list:' + Date.now();
+  const entry = {name, items: currentItems, createdAt: Date.now()};
+  await Store.set(id, entry);
+  libraries[id] = entry;
+  renderLibraryScreen();
+  showToast(`💾 "${name}" saved!`);
+  document.getElementById('saveNameInput').value = '';
+}
+
+async function deleteLibraryEntry(id) {
+  await Store.del(id);
+  delete libraries[id];
+  renderLibraryScreen();
+  showToast('List deleted');
+}
+
+function loadFromLibrary(id) {
+  const entry = libraries[id];
+  if (!entry) return;
+  setItems(entry.items, `${entry.items.length} items from "${entry.name}"`);
+  // Pre-fill manual editor
+  const ed = document.getElementById('manualEditor');
+  ed.innerHTML = '';
+  entry.items.slice(0, 30).forEach(it => addManualRow(it.text, it.emoji));
+  switchTab('setup');
+  showToast(`📂 "${entry.name}" loaded`);
+}
+
+function renderLibraryScreen() {
+  const list = document.getElementById('savedList');
+  const empty = document.getElementById('libraryEmpty');
+  const countEl = document.getElementById('libCount');
+  const keys = Object.keys(libraries);
+
+  countEl.textContent = keys.length ? `(${keys.length})` : '';
+  list.innerHTML = '';
+
+  if (!keys.length) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.style.display = 'flex';
+
+  // Sort newest first
+  keys.sort((a, b) => (libraries[b].createdAt || 0) - (libraries[a].createdAt || 0));
+
+  keys.forEach(id => {
+    const e = libraries[id];
+    const el = document.createElement('div');
+    el.className = 'saved-item';
+    el.innerHTML = `
+      <div class="saved-meta">
+        <div class="saved-name">${esc(e.name)}</div>
+        <div class="saved-count">${e.items.length} items · ${fmtDate(e.createdAt)}</div>
+      </div>
+      <div class="saved-actions">
+        <button class="icon-btn" title="Load" onclick="loadFromLibrary('${id}')">📂</button>
+        <button class="icon-btn danger" title="Delete" onclick="deleteLibraryEntry('${id}')">🗑</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CARD GENERATION
+═══════════════════════════════════════════════════════════════════════ */
+
+// Weighted pick: 40% observation, 25% social, 15% rare, couple fills the rest.
+// Falls back to pure shuffle when items have no category tags.
+function pickWeighted(pool) {
+  const hasCats = pool.some(i => i.category);
+  if (!hasCats) return shuffle(pool).slice(0, 24);
+
+  const targets = { observation: 10, social: 6, couple: 4, rare: 4 };
+  const byCategory = {};
+  for (const cat of Object.keys(targets)) {
+    byCategory[cat] = shuffle(pool.filter(i => i.category === cat));
+  }
+
+  const result = [];
+  for (const [cat, n] of Object.entries(targets)) {
+    result.push(...(byCategory[cat] || []).slice(0, n));
+  }
+
+  if (result.length < 24) {
+    const used = new Set(result);
+    const remaining = shuffle(pool.filter(i => !used.has(i)));
+    result.push(...remaining.slice(0, 24 - result.length));
+  }
+
+  return shuffle(result).slice(0, 24);
+}
+
+function generateCards() {
+  const pool = currentItems.length >= 24
+    ? currentItems
+    : [...currentItems, ...DEFAULT_ITEMS];
+
+  if (pool.length < 24) {
+    showStatus('⚠️ Need at least 24 items. Add more or upload a bigger CSV.', false);
+    return;
+  }
+
+  const n     = parseInt(document.getElementById('numCards').value);
+  const title = document.getElementById('cardTitle').value.trim() || 'Adventure Bingo';
+  const theme = document.getElementById('themeSelect').value;
+
+  cardStates  = [];
+  globalStats = {marked:0, bonuses:0, penalties:0};
+
+  document.getElementById('winBanner').style.display = 'none';
+  document.getElementById('cardsContainer').innerHTML = '';
+  updateScores();
+
+  for (let c = 0; c < n; c++) {
+    const selected = pickWeighted(pool);
+    const types    = buildTypes();
+    const cells    = buildCells(selected, types);
+    const obj      = HIDDEN_OBJECTIVES[Math.floor(Math.random() * HIDDEN_OBJECTIVES.length)];
+    cardStates.push({marked: new Array(25).fill(false), bonuses:0, penalties:0});
+    document.getElementById('cardsContainer').appendChild(renderCard(cells, c, title, theme, obj));
+  }
+
+  document.getElementById('playEmpty').style.display   = 'none';
+  document.getElementById('playContent').style.display = 'block';
+
+  switchTab('play');
+  showToast(`🎴 ${n} card${n>1?'s':''} generated!`);
+}
+
+function buildTypes() {
+  const types = new Array(25).fill('normal');
+  types[12] = 'free';
+  const others = shuffle([...Array(25).keys()].filter(i => i !== 12));
+  others.slice(0, 3).forEach(i => types[i] = 'bonus');
+  others.slice(3, 6).forEach(i => types[i] = 'penalty');
+  return types;
+}
+
+function buildCells(items, types) {
+  let idx = 0;
+  return types.map((type, pos) => {
+    if (type === 'free') return {type, text:'FREE SPACE', emoji:'⭐', pos};
+    const it = items[idx++];
+    return {type, text: it.text, emoji: it.emoji, pos};
+  });
+}
+
+function renderCard(cells, ci, title, theme, objective) {
+  const wrap = document.createElement('div');
+  wrap.className = 'bingo-card-wrap';
+
+  const themeLabels = {
+    vacation:'🏖️ Vacation', nightout:'🍸 Night Out',
+    roadtrip:'🚗 Road Trip', foodie:'🍽️ Foodie', adventure:'🏔️ Adventure'
+  };
+
+  wrap.innerHTML = `
+    <div class="card-header-row">
+      <div class="card-head-title">${esc(title)}</div>
+      <div class="card-head-sub">${themeLabels[theme] || '🎲'}<br>Card ${ci+1}</div>
+    </div>
+    <details class="secret-mission">
+      <summary class="secret-label">🎯 Secret Mission — tap to reveal</summary>
+      <div class="secret-text">${esc(objective)}</div>
+    </details>
+    <div class="bingo-letters">${['B','I','N','G','O'].map(l=>`<div class="b-letter">${l}</div>`).join('')}</div>
+    <div class="bingo-grid" id="grid-${ci}">
+      ${cells.map(cell => renderCell(cell, ci)).join('')}
+    </div>
+  `;
+
+  // Auto-mark free space
+  requestAnimationFrame(() => {
+    const freeEl = wrap.querySelector('[data-pos="12"]');
+    if (freeEl) { freeEl.classList.add('marked'); cardStates[ci].marked[12] = true; }
+  });
+
+  return wrap;
+}
+
+function renderCell(cell, ci) {
+  const badge = cell.type === 'bonus'
+    ? '<span class="cell-badge badge-bonus">+</span>'
+    : cell.type === 'penalty'
+    ? '<span class="cell-badge badge-penalty">!</span>'
+    : '';
+  return `
+    <div class="bingo-cell type-${cell.type}"
+         data-pos="${cell.pos}" data-card="${ci}" data-type="${cell.type}"
+         onclick="tapCell(${ci},${cell.pos},'${cell.type}',this)">
+      ${badge}
+      <span class="cell-emoji">${cell.emoji}</span>
+      <span>${esc(cell.text)}</span>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   GAMEPLAY
+═══════════════════════════════════════════════════════════════════════ */
+function tapCell(ci, pos, type, el) {
+  const state = cardStates[ci];
+  if (state.marked[pos]) {
+    // Unmark
+    state.marked[pos] = false;
+    el.classList.remove('marked');
+    globalStats.marked = Math.max(0, globalStats.marked - 1);
+    if (type === 'bonus')   { state.bonuses--;   globalStats.bonuses   = Math.max(0, globalStats.bonuses-1); }
+    if (type === 'penalty') { state.penalties--;  globalStats.penalties = Math.max(0, globalStats.penalties-1); }
+    updateScores();
+    return;
+  }
+  // Mark
+  state.marked[pos] = true;
+  el.classList.add('marked');
+  globalStats.marked++;
+
+  if (type === 'bonus') {
+    state.bonuses++;
+    globalStats.bonuses++;
+    showPopup('bonus', BONUS_CARDS[Math.floor(Math.random()*BONUS_CARDS.length)]);
+  } else if (type === 'penalty') {
+    state.penalties++;
+    globalStats.penalties++;
+    showPopup('penalty', PENALTY_CARDS[Math.floor(Math.random()*PENALTY_CARDS.length)]);
+  }
+
+  updateScores();
+  checkWin(ci);
+}
+
+const WIN_LINES = [
+  [0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],
+  [0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],[3,8,13,18,23],[4,9,14,19,24],
+  [0,6,12,18,24],[4,8,12,16,20]
+];
+
+function checkWin(ci) {
+  const m = cardStates[ci].marked;
+  if (WIN_LINES.some(line => line.every(i => m[i]))) {
+    const banner = document.getElementById('winBanner');
+    banner.style.display = 'block';
+    banner.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+function updateScores() {
+  document.getElementById('scoreMarked').textContent    = globalStats.marked;
+  document.getElementById('scoreBonuses').textContent   = globalStats.bonuses;
+  document.getElementById('scorePenalties').textContent = globalStats.penalties;
+}
+
+function resetGame() {
+  cardStates  = [];
+  globalStats = {marked:0, bonuses:0, penalties:0};
+  document.getElementById('cardsContainer').innerHTML = '';
+  document.getElementById('winBanner').style.display  = 'none';
+  document.getElementById('playEmpty').style.display   = 'block';
+  document.getElementById('playContent').style.display = 'none';
+  updateScores();
+  switchTab('setup');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POPUP (bottom sheet)
+═══════════════════════════════════════════════════════════════════════ */
+function showPopup(type, card) {
+  document.getElementById('pEmoji').textContent  = card.emoji;
+  document.getElementById('pType').textContent   = type === 'bonus' ? '⚡ BONUS UNLOCKED' : '💀 PENALTY TRIGGERED';
+  document.getElementById('pTitle').textContent  = card.title;
+  document.getElementById('pRule').textContent   = '📜 ' + card.rule;
+  document.getElementById('pType').className     = 'popup-type ' + type + '-type';
+  document.getElementById('pRule').className     = 'popup-rule ' + type + '-rule';
+  document.getElementById('popupOverlay').classList.add('active');
+
+  // swipe-down to close
+  let startY = null;
+  const sheet = document.getElementById('popupSheet');
+  sheet.ontouchstart = e => { startY = e.touches[0].clientY; };
+  sheet.ontouchmove  = e => { if (startY && e.touches[0].clientY - startY > 60) closePopup(); };
+}
+
+function closePopup() {
+  document.getElementById('popupOverlay').classList.remove('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════════════ */
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════════════ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+const EMOJI_POOL = ['🎯','🎪','🎨','🎭','🎬','🎮','🎵','🏆','🎁','🎊','🌈','⭐','🌟','✨','💫','🔥','❄️','🌊','🌺','🌸','🍀','🎩','🎀','🎲','🎸','🥂'];
+function rndEmoji() { return EMOJI_POOL[Math.floor(Math.random()*EMOJI_POOL.length)]; }
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+}
+</script>
+</body>
+</html>
