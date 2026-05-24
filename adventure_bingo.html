@@ -811,6 +811,7 @@ select {
             <option value="roadtrip">🚗 Road Trip</option>
             <option value="foodie">🍽️ Foodie</option>
             <option value="adventure">🏔️ Adventure</option>
+            <option value="houseparty">🏠 House Party</option>
           </select>
         </div>
       </div>
@@ -1041,6 +1042,50 @@ const DEFAULT_ITEMS = [
   {text:'Overheard something truly unhinged',        emoji:'😳', category:'rare'},
   {text:'Found money on the ground',                 emoji:'💸', category:'rare'},
   {text:'A complete stranger gave an unprompted compliment', emoji:'🫶', category:'rare'},
+];
+
+const HOUSE_PARTY_ITEMS = [
+  // Observation — things you spot at a house party
+  {text:'Someone spills a drink on themselves',          emoji:'🥤', category:'observation'},
+  {text:'Two guests arrive in the same outfit',          emoji:'👯', category:'observation'},
+  {text:'Someone falls asleep before midnight',          emoji:'😴', category:'observation'},
+  {text:'The host\'s pet makes a surprise appearance',   emoji:'🐾', category:'observation'},
+  {text:'Someone hiding in the kitchen all night',       emoji:'🍕', category:'observation'},
+  {text:'A phone charger becomes the most sought item',  emoji:'🔌', category:'observation'},
+  {text:'Someone dancing alone like nobody\'s watching', emoji:'💃', category:'observation'},
+  {text:'An unexpected guest shows up uninvited',        emoji:'🚪', category:'observation'},
+  {text:'Bathroom line gets absurdly long',              emoji:'🚽', category:'observation'},
+  {text:'Someone dramatically removes their shoes',      emoji:'👟', category:'observation'},
+  {text:'The music stops at the most awkward moment',    emoji:'🎵', category:'observation'},
+  {text:'Someone gives unsolicited life advice',         emoji:'🧠', category:'observation'},
+  {text:'A couple having an intense corner conversation',emoji:'💬', category:'observation'},
+  {text:'Someone brings an impressive homemade dish',    emoji:'🍲', category:'observation'},
+  {text:'Someone\'s clearly had one too many',           emoji:'😵', category:'observation'},
+  // Social — things you do at a house party
+  {text:'Learn someone\'s completely unexpected talent', emoji:'🎪', category:'social'},
+  {text:'Get pulled into a group photo',                 emoji:'📸', category:'social'},
+  {text:'Play a party game you\'ve never tried',         emoji:'🎮', category:'social'},
+  {text:'Make a genuine new friend',                     emoji:'🤝', category:'social'},
+  {text:'Sample a mystery homemade drink',               emoji:'🍹', category:'social'},
+  {text:'Get roped into a dance-off',                    emoji:'🕺', category:'social'},
+  {text:'Find the best hidden spot in the house',        emoji:'🛋️', category:'social'},
+  {text:'Start a conversation that lasts over 30 mins',  emoji:'⏳', category:'social'},
+  {text:'Get into a debate about something ridiculous',  emoji:'🗣️', category:'social'},
+  {text:'Discover two guests secretly know each other',  emoji:'😲', category:'social'},
+  // Couple — relationship moments at a party
+  {text:'Catch your partner gossiping with someone',     emoji:'🤫', category:'couple'},
+  {text:'Both escape to a quiet spot together',          emoji:'🌙', category:'couple'},
+  {text:'Give each other the "let\'s leave" signal',     emoji:'👀', category:'couple'},
+  {text:'Partner says something that makes you cringe',  emoji:'😬', category:'couple'},
+  {text:'Both agree on the same guest being your fave',  emoji:'🤞', category:'couple'},
+  {text:'Slow dance when no one else is',                emoji:'💃', category:'couple'},
+  // Rare — unlikely but memorable party moments
+  {text:'A neighbor knocks to complain about noise',     emoji:'🚨', category:'rare'},
+  {text:'Someone breaks something accidentally',         emoji:'💥', category:'rare'},
+  {text:'Host runs out of something critical (ice/cups)',emoji:'🧊', category:'rare'},
+  {text:'Someone makes a dramatic unexpected confession', emoji:'😳', category:'rare'},
+  {text:'A guest brings a surprise birthday cake',       emoji:'🎂', category:'rare'},
+  {text:'The power briefly goes out',                    emoji:'🕯️', category:'rare'},
 ];
 
 const HIDDEN_OBJECTIVES = [
@@ -1320,9 +1365,11 @@ function pickWeighted(pool) {
 }
 
 function generateCards() {
+  const theme = document.getElementById('themeSelect').value;
+  const themeDefaults = theme === 'houseparty' ? HOUSE_PARTY_ITEMS : DEFAULT_ITEMS;
   const pool = currentItems.length >= 24
     ? currentItems
-    : [...currentItems, ...DEFAULT_ITEMS];
+    : [...currentItems, ...themeDefaults];
 
   if (pool.length < 24) {
     showStatus('⚠️ Need at least 24 items. Add more or upload a bigger CSV.', false);
@@ -1331,7 +1378,6 @@ function generateCards() {
 
   const n     = parseInt(document.getElementById('numCards').value);
   const title = document.getElementById('cardTitle').value.trim() || 'Adventure Bingo';
-  const theme = document.getElementById('themeSelect').value;
 
   cardStates  = [];
   globalStats = {marked:0, bonuses:0, penalties:0};
@@ -1381,7 +1427,8 @@ function renderCard(cells, ci, title, theme, objective) {
 
   const themeLabels = {
     vacation:'🏖️ Vacation', nightout:'🍸 Night Out',
-    roadtrip:'🚗 Road Trip', foodie:'🍽️ Foodie', adventure:'🏔️ Adventure'
+    roadtrip:'🚗 Road Trip', foodie:'🍽️ Foodie', adventure:'🏔️ Adventure',
+    houseparty:'🏠 House Party'
   };
 
   wrap.innerHTML = `
