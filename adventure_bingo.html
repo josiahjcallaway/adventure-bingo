@@ -404,6 +404,7 @@ select {
 }
 .ld-normal  { background: rgba(255,255,255,0.18); }
 .ld-bonus   { background: var(--green); }
+.ld-chance  { background: var(--orange); }
 .ld-penalty { background: var(--coral); }
 .ld-free    { background: linear-gradient(135deg, var(--sun), var(--coral)); }
 
@@ -425,9 +426,10 @@ select {
 }
 .score-num  { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; line-height: 1; }
 .score-lbl  { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
-.score-chip.c-marked  .score-num { color: var(--sky); }
-.score-chip.c-bonuses .score-num { color: var(--green); }
-.score-chip.c-penal   .score-num { color: var(--coral); }
+.score-chip.c-marked   .score-num { color: var(--sky); }
+.score-chip.c-bonuses  .score-num { color: var(--green); }
+.score-chip.c-chances  .score-num { color: var(--orange); }
+.score-chip.c-penal    .score-num { color: var(--coral); }
 
 /* ── WIN BANNER ─────────────────────────────────────────────────────── */
 .win-banner {
@@ -538,6 +540,7 @@ select {
 
 .bingo-cell.type-normal  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
 .bingo-cell.type-bonus   { background: rgba(31,209,118,0.14); border-color: rgba(31,209,118,0.35); color: #86efac; }
+.bingo-cell.type-chance  { background: rgba(255,140,66,0.14); border-color: rgba(255,140,66,0.35); color: #fdba74; }
 .bingo-cell.type-penalty { background: rgba(255,95,109,0.14); border-color: rgba(255,95,109,0.35); color: #fca5a5; }
 .bingo-cell.type-free    { background: linear-gradient(135deg, var(--sun), var(--coral)); border-color: transparent; color: var(--bg); font-weight: 900; }
 
@@ -552,6 +555,7 @@ select {
   text-transform: uppercase;
 }
 .badge-bonus   { background: rgba(31,209,118,0.25); color: #86efac; }
+.badge-chance  { background: rgba(255,140,66,0.25);  color: #fdba74; }
 .badge-penalty { background: rgba(255,95,109,0.25); color: #fca5a5; }
 
 /* Marked overlay */
@@ -570,6 +574,7 @@ select {
 }
 .bingo-cell.type-normal.marked::after  { background: rgba(56,200,240,0.88); color: white; }
 .bingo-cell.type-bonus.marked::after   { background: rgba(31,209,118,0.92); color: white; }
+.bingo-cell.type-chance.marked::after  { background: rgba(255,140,66,0.92); color: white; }
 .bingo-cell.type-penalty.marked::after { background: rgba(255,95,109,0.92); color: white; }
 .bingo-cell.type-free.marked::after    { background: rgba(0,0,0,0.35); color: white; }
 
@@ -619,6 +624,7 @@ select {
 .popup-emoji    { font-size: 3.5rem; line-height: 1; margin-bottom: 10px; }
 .popup-type     { font-size: 0.65rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 6px; }
 .popup-type.bonus-type   { color: var(--green); }
+.popup-type.chance-type  { color: var(--orange); }
 .popup-type.penalty-type { color: var(--coral); }
 
 .popup-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--text); margin-bottom: 10px; }
@@ -633,6 +639,7 @@ select {
   text-align: left;
 }
 .bonus-rule   { background: rgba(31,209,118,0.12); color: #86efac; border: 1px solid rgba(31,209,118,0.25); }
+.chance-rule  { background: rgba(255,140,66,0.12);  color: #fdba74; border: 1px solid rgba(255,140,66,0.25); }
 .penalty-rule { background: rgba(255,95,109,0.12); color: #fca5a5; border: 1px solid rgba(255,95,109,0.25); }
 
 /* ── TOAST ──────────────────────────────────────────────────────────── */
@@ -715,6 +722,7 @@ select {
   .bingo-card-wrap { border: 2px solid #ccc; break-inside: avoid; page-break-after: always; }
   .bingo-cell.type-normal  { background:#f5f5f5; color:#333; border-color:#ddd; }
   .bingo-cell.type-bonus   { background:#dcfce7; color:#166534; border-color:#86efac; }
+  .bingo-cell.type-chance  { background:#fff3e0; color:#7c3503; border-color:#fdba74; }
   .bingo-cell.type-penalty { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
   .bingo-cell.type-free    { background:linear-gradient(135deg,#FFD93D,#FF6B6B); color:#000; }
 }
@@ -760,7 +768,7 @@ select {
         <input type="file" id="csvInput" accept=".csv,.txt" onchange="loadCSV(event)">
         <span class="upload-icon">📋</span>
         <div class="upload-title">Tap to upload CSV / TXT</div>
-        <div class="upload-hint">One item per line · Or add an <strong>emoji</strong> column</div>
+        <div class="upload-hint">One item per line · Or add an <strong>emoji</strong> column · Built-ins fill any gaps</div>
         <div class="csv-tip">
           Simple: item,emoji<br>
           Tried street food,🌮<br><br>
@@ -864,6 +872,10 @@ select {
           <div class="score-num" id="scoreBonuses">0</div>
           <div class="score-lbl">Bonuses</div>
         </div>
+        <div class="score-chip c-chances">
+          <div class="score-num" id="scoreChances">0</div>
+          <div class="score-lbl">Chances</div>
+        </div>
         <div class="score-chip c-penal">
           <div class="score-num" id="scorePenalties">0</div>
           <div class="score-lbl">Penalties</div>
@@ -874,6 +886,7 @@ select {
       <div class="legend">
         <div class="legend-item"><div class="legend-dot ld-normal"></div>Regular</div>
         <div class="legend-item"><div class="legend-dot ld-bonus"></div>⚡ Bonus</div>
+        <div class="legend-item"><div class="legend-dot ld-chance"></div>🎲 Chance</div>
         <div class="legend-item"><div class="legend-dot ld-penalty"></div>💀 Penalty</div>
         <div class="legend-item"><div class="legend-dot ld-free"></div>⭐ Free</div>
       </div>
@@ -937,7 +950,7 @@ const BONUS_CARDS = [
   { emoji:'🎯', title:'Bullseye!',            rule:'Mark this square AND swap one unchecked square with another player\'s.' },
   { emoji:'🚀', title:'Rocket Launch!',       rule:'Also mark the square directly above or below this one.' },
   { emoji:'🌟', title:'Star Power!',          rule:'For the next 10 minutes, completing one challenge marks two squares.' },
-  { emoji:'🎲', title:'Lucky Roll!',          rule:'Roll a die (or pick 1–6) — that many squares ahead get marked free.' },
+  { emoji:'🎲', title:'Lucky Roll!',          rule:'Flip a coin (or pick 1–6) — that many squares ahead get marked free.' },
   { emoji:'🤝', title:'Team Up!',             rule:'Pick a partner — you both mark your next square at the same time.' },
 ];
 
@@ -954,6 +967,15 @@ const PENALTY_CARDS = [
   { emoji:'🌀', title:'Shuffle!',             rule:'Everyone passes their card clockwise — play the new card for 5 minutes.' },
   { emoji:'🍹', title:'Buy a Round!',         rule:'You must buy the group a round of drinks before your next turn.' },
   { emoji:'📢', title:'Confession!',          rule:'Share an embarrassing vacation story — then the group votes if it counts.' },
+];
+
+const CHANCE_CARDS = [
+  { emoji:'🎲', title:'Roll the Dice!',       rule:'Flip a coin — Heads: mark one extra square for free; Tails: the player to your left picks which of your unchecked squares you must do next.' },
+  { emoji:'🃏', title:'Draw Your Fate!',      rule:'The player to your right picks any unchecked square on your card and reads it aloud — you must attempt it before your next turn.' },
+  { emoji:'🔮', title:'Fortune Teller!',      rule:'Predict something that will happen in the next 30 minutes. If you\'re right, mark a free square. If wrong, unmark one.' },
+  { emoji:'💥', title:'Wildfire!',            rule:'Every player simultaneously marks their nearest unchecked square — count down from 3 together and go!' },
+  { emoji:'🎭', title:'Mystery Task!',        rule:'Close your eyes and point at your card — whatever square your finger lands nearest, you must attempt it right now.' },
+  { emoji:'🔁', title:'Trade Places!',        rule:'Swap cards with any other player for the next 3 squares marked — then swap back.' },
 ];
 
 const DEFAULT_ITEMS = [
@@ -1056,8 +1078,8 @@ const HIDDEN_OBJECTIVES = [
    STATE
 ═══════════════════════════════════════════════════════════════════════ */
 let currentItems  = [];       // active item pool
-let cardStates    = [];       // [{marked:bool[25], bonuses:n, penalties:n}]
-let globalStats   = {marked:0, bonuses:0, penalties:0};
+let cardStates    = [];       // [{marked:bool[25], bonuses:n, chances:n, penalties:n}]
+let globalStats   = {marked:0, bonuses:0, chances:0, penalties:0};
 let libraries     = {};       // id -> {name, items, createdAt}
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1151,8 +1173,19 @@ function processFile(file) {
 
 function setItems(items, msg) {
   currentItems = items;
-  const ok = items.length >= 24;
-  showStatus(ok ? '✅ ' + msg : `⚠️ ${msg} — need at least 24 (have ${items.length})`, ok);
+  let statusMsg, ok;
+  if (!items.length) {
+    statusMsg = '⚠️ No items found';
+    ok = false;
+  } else if (items.length < 24) {
+    const need = 24 - items.length;
+    statusMsg = `✅ ${msg} · ${need} built-in item${need !== 1 ? 's' : ''} will fill the rest`;
+    ok = true;
+  } else {
+    statusMsg = '✅ ' + msg;
+    ok = true;
+  }
+  showStatus(statusMsg, ok);
   document.getElementById('saveSection').style.display = items.length ? 'block' : 'none';
   document.getElementById('saveNameInput').value = '';
 }
@@ -1319,7 +1352,7 @@ function generateCards() {
   const theme = document.getElementById('themeSelect').value;
 
   cardStates  = [];
-  globalStats = {marked:0, bonuses:0, penalties:0};
+  globalStats = {marked:0, bonuses:0, chances:0, penalties:0};
 
   document.getElementById('winBanner').style.display = 'none';
   document.getElementById('cardsContainer').innerHTML = '';
@@ -1330,7 +1363,7 @@ function generateCards() {
     const types    = buildTypes();
     const cells    = buildCells(selected, types);
     const obj      = HIDDEN_OBJECTIVES[Math.floor(Math.random() * HIDDEN_OBJECTIVES.length)];
-    cardStates.push({marked: new Array(25).fill(false), bonuses:0, penalties:0});
+    cardStates.push({marked: new Array(25).fill(false), bonuses:0, chances:0, penalties:0});
     document.getElementById('cardsContainer').appendChild(renderCard(cells, c, title, theme, obj));
   }
 
@@ -1345,8 +1378,9 @@ function buildTypes() {
   const types = new Array(25).fill('normal');
   types[12] = 'free';
   const others = shuffle([...Array(25).keys()].filter(i => i !== 12));
-  others.slice(0, 3).forEach(i => types[i] = 'bonus');
-  others.slice(3, 6).forEach(i => types[i] = 'penalty');
+  others.slice(0, 2).forEach(i => types[i] = 'bonus');
+  others.slice(2, 4).forEach(i => types[i] = 'chance');
+  others.slice(4, 6).forEach(i => types[i] = 'penalty');
   return types;
 }
 
@@ -1395,6 +1429,8 @@ function renderCard(cells, ci, title, theme, objective) {
 function renderCell(cell, ci) {
   const badge = cell.type === 'bonus'
     ? '<span class="cell-badge badge-bonus">+</span>'
+    : cell.type === 'chance'
+    ? '<span class="cell-badge badge-chance">?</span>'
     : cell.type === 'penalty'
     ? '<span class="cell-badge badge-penalty">!</span>'
     : '';
@@ -1419,6 +1455,7 @@ function tapCell(ci, pos, type, el) {
     el.classList.remove('marked');
     globalStats.marked = Math.max(0, globalStats.marked - 1);
     if (type === 'bonus')   { state.bonuses--;   globalStats.bonuses   = Math.max(0, globalStats.bonuses-1); }
+    if (type === 'chance')  { state.chances--;   globalStats.chances   = Math.max(0, globalStats.chances-1); }
     if (type === 'penalty') { state.penalties--;  globalStats.penalties = Math.max(0, globalStats.penalties-1); }
     updateScores();
     return;
@@ -1432,6 +1469,10 @@ function tapCell(ci, pos, type, el) {
     state.bonuses++;
     globalStats.bonuses++;
     showPopup('bonus', BONUS_CARDS[Math.floor(Math.random()*BONUS_CARDS.length)]);
+  } else if (type === 'chance') {
+    state.chances++;
+    globalStats.chances++;
+    showPopup('chance', CHANCE_CARDS[Math.floor(Math.random()*CHANCE_CARDS.length)]);
   } else if (type === 'penalty') {
     state.penalties++;
     globalStats.penalties++;
@@ -1460,12 +1501,13 @@ function checkWin(ci) {
 function updateScores() {
   document.getElementById('scoreMarked').textContent    = globalStats.marked;
   document.getElementById('scoreBonuses').textContent   = globalStats.bonuses;
+  document.getElementById('scoreChances').textContent   = globalStats.chances;
   document.getElementById('scorePenalties').textContent = globalStats.penalties;
 }
 
 function resetGame() {
   cardStates  = [];
-  globalStats = {marked:0, bonuses:0, penalties:0};
+  globalStats = {marked:0, bonuses:0, chances:0, penalties:0};
   document.getElementById('cardsContainer').innerHTML = '';
   document.getElementById('winBanner').style.display  = 'none';
   document.getElementById('playEmpty').style.display   = 'block';
@@ -1479,7 +1521,7 @@ function resetGame() {
 ═══════════════════════════════════════════════════════════════════════ */
 function showPopup(type, card) {
   document.getElementById('pEmoji').textContent  = card.emoji;
-  document.getElementById('pType').textContent   = type === 'bonus' ? '⚡ BONUS UNLOCKED' : '💀 PENALTY TRIGGERED';
+  document.getElementById('pType').textContent   = type === 'bonus' ? '⚡ BONUS UNLOCKED' : type === 'chance' ? '🎲 CHANCE CARD!' : '💀 PENALTY TRIGGERED';
   document.getElementById('pTitle').textContent  = card.title;
   document.getElementById('pRule').textContent   = '📜 ' + card.rule;
   document.getElementById('pType').className     = 'popup-type ' + type + '-type';
